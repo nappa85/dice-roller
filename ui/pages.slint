@@ -1,0 +1,58 @@
+// This slint file contains all the UI pages of the application.
+
+import { Page, Selector } from "widgets.slint";
+import { StyleMetrics } from "style.slint";
+import { HorizontalBox, Button, VerticalBox } from "std-widgets.slint";
+
+export component DiceRollPage inherits Page {
+    in property quantity <=> quantity.value;
+    in property dice <=> dice.value;
+    in property result <=> result.text;
+
+    callback increase-quantity(int) -> int;
+    callback decrease-quantity(int) -> int;
+    callback increase-dice(int) -> int;
+    callback decrease-dice(int) -> int;
+    callback roll(int, int);
+
+    VerticalBox {
+        HorizontalBox {
+            quantity := Selector {
+                increase => {
+                    root.increase-quantity(root.quantity);
+                }
+                decrease => {
+                    root.decrease-quantity(root.quantity);
+                }
+            }
+
+            Text {
+                text: "d";
+                font-size: StyleMetrics.line-height;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+
+            dice := Selector {
+                increase => {
+                    root.increase-dice(root.dice);
+                }
+                decrease => {
+                    root.decrease-dice(root.dice);
+                }
+            }
+
+            Button {
+                text: "Roll";
+                clicked => {
+                    root.roll(quantity.value, dice.value);
+                }
+            }
+        }
+
+        result := Text {
+            font-size: StyleMetrics.result-height;
+            horizontal-alignment: center;
+        }
+    }
+}

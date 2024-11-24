@@ -1,0 +1,53 @@
+
+/// The Base class is imported as Window from widgets.slint.
+import { AppWindow } from "widgets.slint";
+
+import { TabWidget } from "std-widgets.slint";
+
+import { DiceRollPage } from "pages.slint";
+
+import { DiceRoll } from "datatypes.slint";
+
+export global ViewModel {
+    in-out property <DiceRoll> current;
+
+    in property <string> roll-result;
+
+    in property <string> roll-explanation;
+}
+
+export component MainWindow inherits AppWindow {
+    status-base-text: ViewModel.roll-explanation;
+
+    callback increase-quantity(int) -> int;
+    callback decrease-quantity(int) -> int;
+    callback increase-dice(int) -> int;
+    callback decrease-dice(int) -> int;
+    callback roll(int, int);
+
+    DiceRollPage {
+        increase-quantity => {
+            ViewModel.current.quantity = root.increase-quantity(ViewModel.current.quantity);
+            return ViewModel.current.quantity;
+        }
+
+        decrease-quantity => {
+            ViewModel.current.quantity = root.decrease-quantity(ViewModel.current.quantity);
+            return ViewModel.current.quantity;
+        }
+        increase-dice => {
+            ViewModel.current.dice = root.increase-dice(ViewModel.current.dice);
+            return ViewModel.current.dice;
+        }
+        decrease-dice => {
+            ViewModel.current.dice = root.decrease-dice(ViewModel.current.dice);
+            return ViewModel.current.dice;
+        }
+        roll => {
+            root.roll(ViewModel.current.quantity, ViewModel.current.dice);
+        }
+        quantity: ViewModel.current.quantity;
+        dice: ViewModel.current.dice;
+        result: ViewModel.roll-result;
+    }
+}
