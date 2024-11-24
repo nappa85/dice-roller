@@ -1,7 +1,6 @@
 use rand::{thread_rng, Rng};
 use strum::{EnumIter, FromRepr, IntoEnumIterator};
 
-mod dht22;
 mod esp32;
 
 slint::include_modules!();
