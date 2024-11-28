@@ -1,5 +1,5 @@
 fn main() {
-    embuild::espidf::sysenv::output();
+    // embuild::espidf::sysenv::output();
     slint_build::compile_with_config(
         "ui/appwindow.slint",
         slint_build::CompilerConfiguration::new()

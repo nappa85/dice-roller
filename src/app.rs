@@ -1,7 +1,7 @@
+use alloc::{string::String, vec::Vec};
 use rand::{thread_rng, Rng};
 use strum::{EnumIter, FromRepr, IntoEnumIterator};
-
-mod esp32;
+use slint::PlatformError;
 
 slint::include_modules!();
 
@@ -36,17 +36,17 @@ impl Dice {
 }
 
 /// Our App struct that holds the UI
-struct App {
+pub struct App {
     ui: MainWindow,
 }
 
 impl App {
     /// Create a new App struct.
     ///
-    /// The App struct initializes the UI and the weather controller.
-    fn new() -> anyhow::Result<Self> {
+    /// The App struct initializes the UI
+    pub fn new() -> Result<Self, PlatformError> {
         // Make a new MainWindow
-        let ui = MainWindow::new().map_err(|e| anyhow::anyhow!(e))?;
+        let ui = MainWindow::new()?;
 
         // init default
         let model = ViewModel::get(&ui);
@@ -56,18 +56,16 @@ impl App {
         });
         model.set_roll_result("Ready to roll".into());
 
+        // setup events
         ui.on_decrease_quantity(|quantity| {
-            log::error!("decrease quantity {quantity}");
             (quantity - 1).max(0)
         });
 
         ui.on_increase_quantity(|quantity| {
-            log::error!("increase quantity {quantity}");
             (quantity + 1).min(100)
         });
 
         ui.on_decrease_dice(|dice| {
-            log::error!("decrease dice {dice}");
             if let Some(dec) = Dice::from_repr(dice).unwrap_or_default().dec() {
                 dec as i32
             } else {
@@ -76,7 +74,6 @@ impl App {
         });
 
         ui.on_increase_dice(|dice| {
-            log::error!("increase dice {dice}");
             if let Some(inc) = Dice::from_repr(dice).unwrap_or_default().inc() {
                 inc as i32
             } else {
@@ -119,24 +116,7 @@ impl App {
     }
 
     /// Run the App
-    fn run(&mut self) -> anyhow::Result<()> {
-        // Run the UI (and map an error to an anyhow::Error).
-        self.ui.run().map_err(|e| anyhow::anyhow!(e))
+    pub fn run(&mut self) -> Result<(), PlatformError> {
+        self.ui.run()
     }
-}
-
-fn main() -> anyhow::Result<()> {
-    // It is necessary to call this function once. Otherwise some patches to the runtime
-    // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
-    esp_idf_svc::sys::link_patches();
-
-    // Bind the log crate to the ESP Logging facilities
-    esp_idf_svc::log::EspLogger::initialize_default();
-
-    // Set the platform
-    slint::platform::set_platform(esp32::EspPlatform::new()).unwrap();
-
-    let mut app = App::new()?;
-
-    app.run()
 }
